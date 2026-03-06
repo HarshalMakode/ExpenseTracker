@@ -5,21 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Entity
-@Table(name = "budgets")
+@Table(name = "users")
 @Data
 @AllArgsConstructor
-public class Budget {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String month;
+    private String name;
 
-    private double limitAmount;
+    @Column(unique = true)
+    private String email;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private String password;
+
+    private String role;
 
 }

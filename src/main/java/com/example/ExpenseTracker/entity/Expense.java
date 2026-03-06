@@ -4,19 +4,25 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Entity
-@Table(name = "budgets")
+@Table(name = "expenses")
 @Data
 @AllArgsConstructor
-public class Budget {
+public class Expense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String month;
+    private double amount;
 
-    private double limitAmount;
+    private String category;
+
+    private String description;
+
+    private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
