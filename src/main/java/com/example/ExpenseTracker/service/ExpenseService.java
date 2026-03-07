@@ -18,7 +18,7 @@ public class ExpenseService {
 
         Expense expense = new Expense();
 
-        expense.setTitle(request.getTitle());
+        expense.setDescription(request.getTitle());
         expense.setAmount(request.getAmount());
         expense.setCategory(request.getCategory());
         expense.setDate(request.getDate());
