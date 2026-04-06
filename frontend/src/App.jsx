@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import Profile from "./pages/Profile";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -32,6 +33,9 @@ function AppRoutes() {
           isAuthenticated ? <Dashboard /> : <Navigate to="/" />
         }
       />
+
+      <Route path="/profile" element={<Profile/>} />
+
     </Routes>
   );
 }
