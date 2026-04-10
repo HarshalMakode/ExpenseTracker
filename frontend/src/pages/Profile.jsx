@@ -58,7 +58,6 @@ function Profile() {
           </div>
         </div>
 
-        {/* 🧾 Personal Info */}
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
           <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-4">
             Personal Information
@@ -114,55 +113,6 @@ function Profile() {
             Save Changes
           </button>
         </div>
-
-        {/* 🔐 Password Section */}
-        <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-4">
-            Change Password
-          </h2>
-
-          <div className="space-y-3">
-
-            <div className="flex items-center gap-2">
-              <Lock size={16} />
-              <input
-                type="password"
-                name="password"
-                placeholder="Current Password"
-                onChange={handleChange}
-                className="w-full bg-transparent outline-none"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Lock size={16} />
-              <input
-                type="password"
-                name="newPassword"
-                placeholder="New Password"
-                onChange={handleChange}
-                className="w-full bg-transparent outline-none"
-              />
-            </div>
-
-          </div>
-
-          <button className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg text-sm">
-            Update Password
-          </button>
-        </div>
-
-        {/* ⚠️ Danger Zone */}
-        <div className="rounded-2xl bg-white dark:bg-slate-800 border border-red-200 dark:border-red-500/30 p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-red-500 mb-3">
-            Danger Zone
-          </h2>
-
-          <button className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm">
-            Delete Account
-          </button>
-        </div>
-
         <Footer />
       </div>
     </div>

@@ -7,8 +7,8 @@ const MOCK_USERS = [
   {
     id: 1,
     name: "Your Name",
-    email: "name@example.com",
-    password: "password123",
+    email: "a",
+    password: "a",
     avatar: "HD",
     joinedDate: "January 2025",
   },

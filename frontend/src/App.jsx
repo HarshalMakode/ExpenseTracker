@@ -7,6 +7,9 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile";
+import Account from "./pages/Account";
+import Security from "./pages/Security";
+import HelpNSupport from "./pages/HelpNSupport";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -35,6 +38,12 @@ function AppRoutes() {
       />
 
       <Route path="/profile" element={<Profile/>} />
+
+      <Route path="/account" element={<Account/>}/>
+
+      <Route path="/security" element={<Security/>}/>
+
+      <Route path="/help" element={<HelpNSupport/>}/>
 
     </Routes>
   );

@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from "react";
 import {
-  Wallet,
   Sun,
   Moon,
   Monitor,
@@ -17,7 +16,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
   const { isDark, toggle, resetToSystem, override, systemTheme } = useTheme();
@@ -25,9 +24,7 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
   const ref = useRef(null);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
-  const location = useLocation();
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e) => {
       if (
