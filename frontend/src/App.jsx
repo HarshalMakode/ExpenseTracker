@@ -10,12 +10,14 @@ import Profile from "./pages/Profile";
 import Account from "./pages/Account";
 import Security from "./pages/Security";
 import HelpNSupport from "./pages/HelpNSupport";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
+
       {/* Public routes */}
       <Route
         path="/"
@@ -29,21 +31,61 @@ function AppRoutes() {
 
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Protected route */}
+      {/* Protected routes */}
       <Route
         path="/dashboard"
         element={
-          isAuthenticated ? <Dashboard /> : <Navigate to="/" />
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
         }
       />
 
-      <Route path="/profile" element={<Profile/>} />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/account" element={<Account/>}/>
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <Account />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/security" element={<Security/>}/>
+      <Route
+        path="/security"
+        element={
+          <ProtectedRoute>
+            <Security />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/help" element={<HelpNSupport/>}/>
+      <Route
+        path="/help"
+        element={
+          <ProtectedRoute>
+            <HelpNSupport />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Example ADMIN route */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute role="ADMIN">
+            <div>Admin Dashboard</div>
+          </ProtectedRoute>
+        }
+      />
 
     </Routes>
   );
