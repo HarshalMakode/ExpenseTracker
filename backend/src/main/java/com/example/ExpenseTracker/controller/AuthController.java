@@ -3,6 +3,7 @@ package com.example.ExpenseTracker.controller;
 import com.example.ExpenseTracker.dto.AuthResponse;
 import com.example.ExpenseTracker.dto.LoginRequest;
 import com.example.ExpenseTracker.dto.RegisterRequest;
+import com.example.ExpenseTracker.repository.UserRepository;
 import com.example.ExpenseTracker.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -18,17 +21,29 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    @Autowired
+    private UserRepository userRepository;
 
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.ok(response);
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        return authService.register(request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        return authService.login(request);
+    }
 
-        AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+    @PostMapping("/check-user")
+    public ResponseEntity<?> checkUser(@RequestBody Map<String, String> req) {
+
+        String email = req.get("email");
+
+        if (!userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "User does not exist"));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "User exists"));
     }
 }

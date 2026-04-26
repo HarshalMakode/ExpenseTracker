@@ -8,8 +8,11 @@ import com.example.ExpenseTracker.repository.UserRepository;
 import com.example.ExpenseTracker.security.JwtService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -23,10 +26,19 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public AuthResponse register(RegisterRequest request) {
+    // REGISTER
+    public ResponseEntity<?> register(RegisterRequest request) {
+
+        //  CHECK IF USER ALREADY EXISTS
+        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+
+        if (existingUser.isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new AuthResponse(null, "User already exists"));
+        }
 
         User user = new User();
-
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -36,20 +48,32 @@ public class AuthService {
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole());
 
-        return new AuthResponse(token, "User registered successfully");
+        return ResponseEntity.ok(new AuthResponse(token, "User registered successfully"));
     }
 
-    public AuthResponse login(LoginRequest request) {
+    //  LOGIN
+    public ResponseEntity<?> login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
 
+        // USER NOT FOUND
+        if (userOptional.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new AuthResponse(null, "User does not exist"));
+        }
+
+        User user = userOptional.get();
+
+        //  WRONG PASSWORD
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            return ResponseEntity
+                    .badRequest()
+                    .body(new AuthResponse(null, "Invalid credentials"));
         }
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole());
 
-        return new AuthResponse(token, "Login successful");
+        return ResponseEntity.ok(new AuthResponse(token, "Login successful"));
     }
 }
