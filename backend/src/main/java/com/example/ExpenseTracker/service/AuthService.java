@@ -5,8 +5,10 @@ import com.example.ExpenseTracker.dto.LoginRequest;
 import com.example.ExpenseTracker.dto.RegisterRequest;
 import com.example.ExpenseTracker.entity.User;
 import com.example.ExpenseTracker.repository.UserRepository;
+import com.example.ExpenseTracker.security.JwtService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,8 +17,11 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public AuthResponse register(RegisterRequest request) {
 
@@ -24,12 +29,14 @@ public class AuthService {
 
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
 
         userRepository.save(user);
 
-        return new AuthResponse("User registered successfully");
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new AuthResponse(token, "User registered successfully");
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -37,14 +44,12 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-//            throw new RuntimeException("Invalid credentials");
-//        }
-
-        if (!request.getPassword().equals(user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return new AuthResponse("Login successful");
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new AuthResponse(token, "Login successful");
     }
 }
