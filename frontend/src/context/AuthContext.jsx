@@ -2,22 +2,18 @@ import { createContext, useContext, useState, useCallback } from "react";
 
 const AuthContext = createContext(null);
 
-// Mock user store — replace with real API calls
-const MOCK_USERS = [
-  {
-    id: 1,
-    name: "Your Name",
-    email: "a",
-    password: "a",
-    avatar: "HD",
-    joinedDate: "January 2025",
-  },
-];
-
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
+
+  // Load user from token on refresh
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setUser({ token }); // basic for now
+    }
+  }, []);
 
   // ── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
