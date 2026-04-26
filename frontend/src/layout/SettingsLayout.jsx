@@ -176,7 +176,7 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
       {isLoggedIn && (
         <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-700/30">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/30 flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/30">
               <span className="text-white text-xs font-black">
                 {user?.avatar}
               </span>
@@ -214,7 +214,7 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
                       }`}
                   >
                     <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-150
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-150
                       ${
                         item.danger
                           ? "bg-rose-100 dark:bg-rose-900/30 text-rose-500"
