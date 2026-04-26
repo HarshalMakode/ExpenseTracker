@@ -38,47 +38,51 @@ export function AuthProvider({ children }) {
 
   // ── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
+
+  try {
+    const res = await fetch("http://localhost:8081/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    let data;
 
     try {
-      const res = await fetch("http://localhost:8081/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      const decoded = jwtDecode(data.token);
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      // Store token
-      localStorage.setItem("token", data.token);
-
-      setUser({
-        email,
-        token: data.token,
-        role: decoded.role,
-      });
-
-      setLoading(false);
-      return true;
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      return false;
+      data = await res.json();
+    } catch {
+      data = {};
     }
-  }, []);
+
+    if (!res.ok) {
+      throw new Error(data.message || "User does not exist");
+    }
+
+    // ✅ decode only after success
+    const decoded = jwtDecode(data.token);
+
+    // Store token
+    localStorage.setItem("token", data.token);
+
+    setUser({
+      email,
+      token: data.token,
+      role: decoded.role,
+    });
+
+    setLoading(false);
+    return true;
+
+  } catch (err) {
+    setError(err.message);
+    setLoading(false);
+    return false;
+  }
+}, []);
 
   // ── Signup ───────────────────────────────────────────────────────────────
   const signup = useCallback(async (name, email, password) => {

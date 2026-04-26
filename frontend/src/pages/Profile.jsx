@@ -65,26 +65,6 @@ function Profile() {
       <Header />
 
       <div className="relative max-w-5xl mx-auto px-4 py-8 space-y-6">
-        <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm flex items-center gap-6">
-          <div className="relative">
-            <img
-              src=""
-              alt="profile"
-              className="w-20 h-20 rounded-full object-cover"
-            />
-            <button className="absolute bottom-0 right-0 bg-indigo-500 text-white p-1 rounded-full">
-              <Camera size={14} />
-            </button>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {userData.name}
-            </h2>
-            <p className="text-sm text-slate-400">{userData.email}</p>
-          </div>
-        </div>
-
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
           <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-4">
             Personal Information
