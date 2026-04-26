@@ -1,17 +1,38 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   // Load user from token on refresh
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      setUser({ token }); // basic for now
+
+    if (!token) return;
+
+    try {
+      const decoded = jwtDecode(token);
+
+      setUser({
+        token,
+        role: decoded.role,
+      });
+    } catch (err) {
+      console.error("Invalid token:", err);
+
+      // Remove bad token
+      localStorage.removeItem("token");
+      setUser(null);
     }
   }, []);
 
@@ -20,23 +41,43 @@ export function AuthProvider({ children }) {
     setLoading(true);
     setError("");
 
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 800));
+    try {
+      const res = await fetch("http://localhost:8081/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const found = MOCK_USERS.find(
-      (u) => u.email === email && u.password === password
-    );
+      const data = await res.json();
 
-    if (!found) {
-      setError("Invalid email or password.");
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      const decoded = jwtDecode(data.token);
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Store token
+      localStorage.setItem("token", data.token);
+
+      setUser({
+        email,
+        token: data.token,
+        role: decoded.role,
+      });
+
+      setLoading(false);
+      return true;
+    } catch (err) {
+      setError(err.message);
       setLoading(false);
       return false;
     }
-
-    const { password: _, ...safeUser } = found; // never store password in state
-    setUser(safeUser);
-    setLoading(false);
-    return true;
   }, []);
 
   // ── Signup ───────────────────────────────────────────────────────────────
@@ -44,41 +85,74 @@ export function AuthProvider({ children }) {
     setLoading(true);
     setError("");
 
-    await new Promise((r) => setTimeout(r, 800));
+    try {
+      const res = await fetch("http://localhost:8081/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    const exists = MOCK_USERS.find((u) => u.email === email);
-    if (exists) {
-      setError("An account with this email already exists.");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      const decoded = jwtDecode(data.token);
+
+      if (!res.ok) {
+        throw new Error(data.message || "Signup failed");
+      }
+
+      // Store token
+      localStorage.setItem("token", data.token);
+
+      setUser({
+        email,
+        token: data.token,
+        role: decoded.role,
+      });
+      setLoading(false);
+      return true;
+    } catch (err) {
+      setError(err.message);
       setLoading(false);
       return false;
     }
-
-    const newUser = {
-      id: Date.now(),
-      name,
-      email,
-      avatar: name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2),
-      joinedDate: new Date().toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      }),
-    };
-
-    MOCK_USERS.push({ ...newUser, password }); // persist to mock store
-    setUser(newUser);
-    setLoading(false);
-    return true;
   }, []);
 
   // ── Logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
+    localStorage.removeItem("token"); // remove token
     setUser(null);
     setError("");
+  }, []);
+
+  // ── Helper: Get Auth Header ──────────────────────────────────────────────
+  const getAuthHeader = () => {
+    const token = localStorage.getItem("token");
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  // ── Example: Fetch Profile ───────────────────────────────────────────────
+  const fetchProfile = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:8081/api/user/profile", {
+        headers: getAuthHeader(),
+      });
+
+      if (!res.ok) throw new Error("Unauthorized");
+
+      const data = await res.text(); // your API returns string
+      return data;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    }
   }, []);
 
   // ── Update Profile ───────────────────────────────────────────────────────
@@ -97,32 +171,9 @@ export function AuthProvider({ children }) {
           .slice(0, 2);
       }
 
-      // Sync back to mock store
-      const idx = MOCK_USERS.findIndex((u) => u.id === prev.id);
-      if (idx !== -1) MOCK_USERS[idx] = { ...MOCK_USERS[idx], ...updated };
-
       return updated;
     });
   }, []);
-
-  // ── Change Password ──────────────────────────────────────────────────────
-  const changePassword = useCallback(async (currentPassword, newPassword) => {
-    setLoading(true);
-    setError("");
-
-    await new Promise((r) => setTimeout(r, 600));
-
-    const idx = MOCK_USERS.findIndex((u) => u.id === user?.id);
-    if (idx === -1 || MOCK_USERS[idx].password !== currentPassword) {
-      setError("Current password is incorrect.");
-      setLoading(false);
-      return false;
-    }
-
-    MOCK_USERS[idx].password = newPassword;
-    setLoading(false);
-    return true;
-  }, [user]);
 
   // ── Clear Error ──────────────────────────────────────────────────────────
   const clearError = useCallback(() => setError(""), []);
@@ -138,7 +189,6 @@ export function AuthProvider({ children }) {
         signup,
         logout,
         updateProfile,
-        changePassword,
         clearError,
       }}
     >
