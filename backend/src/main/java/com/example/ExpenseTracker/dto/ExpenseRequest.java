@@ -6,10 +6,13 @@ import java.time.LocalDate;
 
 @Data
 public class ExpenseRequest {
-
     private String title;
     private double amount;
     private String category;
     private LocalDate date;
+    private String description;
 
+    public String getDescription() {
+        return this.description;
+    }
 }

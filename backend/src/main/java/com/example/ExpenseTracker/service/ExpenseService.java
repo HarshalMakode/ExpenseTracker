@@ -4,10 +4,13 @@ import com.example.ExpenseTracker.dto.ExpenseRequest;
 import com.example.ExpenseTracker.entity.Expense;
 import com.example.ExpenseTracker.entity.User;
 import com.example.ExpenseTracker.repository.ExpenseRepository;
-import com.example.ExpenseTracker.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -15,64 +18,47 @@ public class ExpenseService {
 
     @Autowired
     private ExpenseRepository expenseRepository;
-    @Autowired
-    private UserRepository userRepository ;
 
-    public Expense addExpense(Long userId, ExpenseRequest request) {
+    public List<Expense> getAllExpenses() {
+        return expenseRepository.findAll();
+    }
 
-        System.out.println("----------------In ExpenseService----------------------------");
+    // ✅ ADD EXPENSE
+    public Expense addExpense(ExpenseRequest request) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
 
         Expense expense = new Expense();
-        expense.setDescription(request.getTitle());
+        expense.setDescription(request.getDescription());
         expense.setAmount(request.getAmount());
         expense.setCategory(request.getCategory());
-        expense.setDate(request.getDate());
+        expense.setDate(LocalDate.now()); // backend controls date
         expense.setUser(user);
 
         return expenseRepository.save(expense);
     }
 
-    public List<Expense> getUserExpenses(Long userId) {
+    public List<Expense> getUserExpenses() {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
 
         return expenseRepository.findByUser(user);
     }
 
-    public List<Expense> getUserExpenses() {
-
-        return expenseRepository.findAll();
-    }
-
-    public Expense getExpenseById(Long id) {
-
-        return expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
-    }
-
-    public Expense updateExpense(Long id, ExpenseRequest request) {
-
-        Expense expense = getExpenseById(id);
-
-        expense.setDescription(request.getTitle());
-        expense.setAmount(request.getAmount());
-        expense.setCategory(request.getCategory());
-        expense.setDate(request.getDate());
-
-        return expenseRepository.save(expense);
-    }
-
     public void deleteExpense(Long id) {
 
-        expenseRepository.deleteById(id);
-    }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
 
-    public List<Expense> getAllExpenses() {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
 
-        return expenseRepository.findAll();
+        if (!expense.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        expenseRepository.delete(expense);
     }
 }

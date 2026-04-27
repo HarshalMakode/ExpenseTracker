@@ -50,6 +50,7 @@ function Profile() {
     return <div className="text-center mt-10">Loading profile...</div>;
   }
 
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}
@@ -78,6 +79,7 @@ function Profile() {
                 <input
                   name="name"
                   value={userData.name}
+                  readOnly
                   className="w-full bg-transparent outline-none"
                 />
               </div>
@@ -90,22 +92,11 @@ function Profile() {
                 <input
                   name="email"
                   value={userData.email}
+                  readOnly
                   className="w-full bg-transparent outline-none"
                 />
               </div>
             </div>
-
-            {/* <div>
-              <label className="text-xs text-slate-400">Phone</label>
-              <div className="flex items-center gap-2 mt-1">
-                <Phone size={16} />
-                <input
-                  name="phone"
-                  value={userData.phone}
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
-            </div> */}
           </div>
         </div>
         <Footer />
