@@ -29,6 +29,10 @@ public class Expense {
     @Column(nullable = false)
     private LocalDate date;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private TransactionType type;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
