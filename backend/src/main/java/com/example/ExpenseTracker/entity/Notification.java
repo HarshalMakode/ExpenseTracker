@@ -1,27 +1,22 @@
 package com.example.ExpenseTracker.entity;
 
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "budgets")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Budget {
-
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long budgetId;
-
-    private String month;
-
-    private double limitAmount;
+    private Long id;
+    private String title;
+    private String message;
+    private boolean isRead = false;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
 }

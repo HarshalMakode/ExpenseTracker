@@ -11,6 +11,7 @@ import Account from "./pages/Account";
 import Security from "./pages/Security";
 import HelpNSupport from "./pages/HelpNSupport";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Notification from "./pages/Notification";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -73,6 +74,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <HelpNSupport />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notification/>
           </ProtectedRoute>
         }
       />

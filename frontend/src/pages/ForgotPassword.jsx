@@ -15,22 +15,44 @@ export default function ForgotPassword() {
   const sendResetEmail = async () => {
     if (!email.trim()) return;
 
-    const templateParams = {
-      email: email,
-      reset_link: `http://localhost:5173/reset-password`
-    };
-
     try {
+      // ✅ Step 1: Check if user exists
+      const res = await fetch("http://localhost:8081/auth/check-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
+      if (!res.ok) {
+        throw new Error(data.message || "User does not exist");
+      }
+
+      // ✅ Step 2: Send email only if user exists
+      const templateParams = {
+        email: email,
+        reset_link: `http://localhost:5173/reset-password`,
+      };
+
       await emailjs.send(
-        "service_id",
-        "template_id",
+        "service_v9ud73c",
+        "template_tgudyjs",
         templateParams,
-        "public_key"
+        "nMvpmeWxMvfDOHLWX",
       );
 
       setSent(true);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      alert(err.message); 
     }
   };
 
@@ -60,11 +82,9 @@ export default function ForgotPassword() {
 
       <div className="relative flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 shadow-xl shadow-slate-200/60 dark:shadow-slate-900/60 p-8">
-
             {/* Heading */}
             <div className="mb-8 text-center">
               <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mx-auto mb-4">
@@ -127,7 +147,6 @@ export default function ForgotPassword() {
                 Back to Login
               </button>
             </p>
-
           </div>
         </div>
       </div>
