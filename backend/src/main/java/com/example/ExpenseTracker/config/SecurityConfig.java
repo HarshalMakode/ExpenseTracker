@@ -21,28 +21,29 @@ public class SecurityConfig {
             HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors ->
+                        cors.configurationSource(corsConfigurationSource())
+                )
 
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // CORS preflight
+                        // Allow browser CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**")
                         .permitAll()
 
-                        // Authentication
-                        .requestMatchers(
-                                "/auth/**"
-                        ).permitAll()
+                        // Login / Register / Forgot Password
+                        .requestMatchers("/auth/**")
+                        .permitAll()
 
-                        // Uploaded images
-                        .requestMatchers(
-                                "/uploads/**"
-                        ).permitAll()
+                        // Profile images
+                        .requestMatchers("/uploads/**")
+                        .permitAll()
 
-                        // Everything else
-                        .anyRequest().authenticated()
+                        // Everything else requires authentication
+                        .anyRequest()
+                        .authenticated()
                 );
 
         return http.build();
@@ -55,6 +56,7 @@ public class SecurityConfig {
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
+        // Frontend URLs allowed to access backend
         configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:5173",
@@ -62,6 +64,7 @@ public class SecurityConfig {
                 )
         );
 
+        // HTTP methods
         configuration.setAllowedMethods(
                 List.of(
                         "GET",
@@ -72,19 +75,20 @@ public class SecurityConfig {
                 )
         );
 
+        // Allow all request headers
         configuration.setAllowedHeaders(
-                List.of(
-                        "Authorization",
-                        "Content-Type"
-                )
+                List.of("*")
         );
 
+        // Response headers that browser can access
         configuration.setExposedHeaders(
                 List.of(
                         "Authorization"
                 )
         );
 
+        // Your frontend does not use cookies for authentication.
+        // JWT is sent through Authorization header.
         configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
