@@ -1,11 +1,16 @@
 package com.example.ExpenseTracker.config;
 
+import com.example.ExpenseTracker.security.JwtAuthenticationFilter;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,39 +21,61 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http) throws Exception {
 
         http
+                // ================= CORS =================
                 .cors(cors ->
-                        cors.configurationSource(corsConfigurationSource())
+                        cors.configurationSource(
+                                corsConfigurationSource()
+                        )
                 )
 
+                // ================= CSRF =================
                 .csrf(csrf -> csrf.disable())
 
+                // ================= AUTHORIZATION =================
                 .authorizeHttpRequests(auth -> auth
 
-                        // Allow browser CORS preflight requests
-                        .requestMatchers(HttpMethod.OPTIONS, "/**")
-                        .permitAll()
+                        // CORS preflight
+                        .requestMatchers(
+                                HttpMethod.OPTIONS,
+                                "/**"
+                        ).permitAll()
 
                         // Login / Register / Forgot Password
-                        .requestMatchers("/auth/**")
-                        .permitAll()
+                        .requestMatchers(
+                                "/auth/**"
+                        ).permitAll()
 
                         // Profile images
-                        .requestMatchers("/uploads/**")
-                        .permitAll()
+                        .requestMatchers(
+                                "/uploads/**"
+                        ).permitAll()
 
                         // Everything else requires authentication
-                        .anyRequest()
-                        .authenticated()
+                        .anyRequest().authenticated()
+                )
+
+                // ================= JWT FILTER =================
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
     }
 
+
+    // ============================================================
+    // CORS CONFIGURATION
+    // ============================================================
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -56,7 +83,6 @@ public class SecurityConfig {
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
-        // Frontend URLs allowed to access backend
         configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:5173",
@@ -64,7 +90,6 @@ public class SecurityConfig {
                 )
         );
 
-        // HTTP methods
         configuration.setAllowedMethods(
                 List.of(
                         "GET",
@@ -75,20 +100,16 @@ public class SecurityConfig {
                 )
         );
 
-        // Allow all request headers
         configuration.setAllowedHeaders(
                 List.of("*")
         );
 
-        // Response headers that browser can access
         configuration.setExposedHeaders(
                 List.of(
                         "Authorization"
                 )
         );
 
-        // Your frontend does not use cookies for authentication.
-        // JWT is sent through Authorization header.
         configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
