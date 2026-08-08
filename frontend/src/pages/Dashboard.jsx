@@ -18,6 +18,9 @@ import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { useAuth } from "../context/AuthContext";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 function Dashboard() {
   const { isDark } = useTheme();
   const { user: authUser } = useAuth();
@@ -30,8 +33,7 @@ function Dashboard() {
   // MONTHLY GRAPH RANGE
   // =========================
 
-  const [chartRange, setChartRange] =
-    useState("7");
+  const [chartRange, setChartRange] = useState("7");
 
   // =========================
   // FETCH TRANSACTIONS
@@ -49,7 +51,7 @@ function Dashboard() {
         setError("");
 
         const res = await fetch(
-          "http://localhost:8081/api/expenses",
+          `${API_URL}/api/expenses`,
           {
             headers: {
               Authorization: `Bearer ${authUser.token}`,
@@ -58,9 +60,7 @@ function Dashboard() {
         );
 
         if (!res.ok) {
-          throw new Error(
-            "Failed to fetch transactions"
-          );
+          throw new Error("Failed to fetch transactions");
         }
 
         const data = await res.json();
@@ -70,6 +70,7 @@ function Dashboard() {
         );
       } catch (err) {
         console.error(err);
+
         setError(
           "Failed to load transactions."
         );
@@ -97,13 +98,15 @@ function Dashboard() {
       setError("");
 
       const res = await fetch(
-        "http://localhost:8081/api/expenses",
+        `${API_URL}/api/expenses`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authUser.token}`,
           },
+
           body: JSON.stringify({
             description: tx.description,
             amount: tx.amount,
@@ -157,9 +160,10 @@ function Dashboard() {
       setError("");
 
       const res = await fetch(
-        `http://localhost:8081/api/expenses/${id}`,
+        `${API_URL}/api/expenses/${id}`,
         {
           method: "DELETE",
+
           headers: {
             Authorization: `Bearer ${authUser.token}`,
           },
@@ -270,7 +274,7 @@ function Dashboard() {
       numberOfMonths = 12;
     }
 
-    // "This Year"
+    // This Year
     if (chartRange === "year") {
       numberOfMonths =
         currentMonth + 1;
@@ -301,8 +305,7 @@ function Dashboard() {
       } else {
         date = new Date(
           currentYear,
-          currentMonth -
-            i,
+          currentMonth - i,
           1
         );
       }
@@ -316,8 +319,7 @@ function Dashboard() {
             }
           ),
 
-        year:
-          date.getFullYear(),
+        year: date.getFullYear(),
 
         monthIndex:
           date.getMonth(),
@@ -500,6 +502,7 @@ function Dashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
                 <div>
+
                   <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                     Monthly Spend
                   </h2>
@@ -507,6 +510,7 @@ function Dashboard() {
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                     {chartRangeLabel}
                   </p>
+
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -516,12 +520,14 @@ function Dashboard() {
                   <div className="text-right">
 
                     <div className="text-lg font-black text-indigo-500 tabular-nums">
+
                       {fmt(
                         monthlyData[
                           monthlyData.length -
                             1
                         ]?.spend || 0
                       )}
+
                     </div>
 
                     <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
@@ -541,6 +547,7 @@ function Dashboard() {
                     }
                     className="text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer"
                   >
+
                     <option value="7">
                       Last 7 Months
                     </option>
@@ -556,6 +563,7 @@ function Dashboard() {
                     <option value="year">
                       This Year
                     </option>
+
                   </select>
 
                 </div>
@@ -633,8 +641,7 @@ function Dashboard() {
 
               <div className="divide-y divide-slate-100 dark:divide-slate-700/50 max-h-80 overflow-y-auto -mx-1">
 
-                {transactions.length ===
-                0 ? (
+                {transactions.length === 0 ? (
 
                   <div className="py-8 text-center">
 
@@ -675,6 +682,7 @@ function Dashboard() {
         <Footer />
 
       </div>
+
     </div>
   );
 }

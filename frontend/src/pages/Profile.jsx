@@ -11,6 +11,9 @@ import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { useTheme } from "../context/ThemeContext";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 function Profile() {
   const { isDark } = useTheme();
   const { user } = useAuth();
@@ -26,20 +29,21 @@ function Profile() {
   });
 
   // =========================
-  // Fetch Profile
+  // FETCH PROFILE
   // =========================
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        if (!user?.token) {
-          setLoading(false);
-          return;
-        }
+      if (!user?.token) {
+        setLoading(false);
+        return;
+      }
 
+      try {
         const res = await fetch(
-          "http://localhost:8081/api/user/profile",
+          `${API_URL}/api/user/profile`,
           {
+            method: "GET",
             headers: {
               Authorization: `Bearer ${user.token}`,
             },
@@ -47,7 +51,9 @@ function Profile() {
         );
 
         if (!res.ok) {
-          throw new Error("Failed to fetch profile");
+          throw new Error(
+            `Failed to fetch profile: ${res.status}`
+          );
         }
 
         const data = await res.json();
@@ -56,11 +62,15 @@ function Profile() {
           name: data.name || "",
           email: data.email || "",
           phone: data.phone || "",
-          profileImage: data.profileImage || "",
+          profileImage:
+            data.profileImage || "",
           role: data.role || "",
         });
       } catch (err) {
-        console.error(err);
+        console.error(
+          "Failed to fetch profile:",
+          err
+        );
       } finally {
         setLoading(false);
       }
@@ -70,14 +80,16 @@ function Profile() {
   }, [user?.token]);
 
   // =========================
-  // Loading
+  // LOADING
   // =========================
 
   if (loading) {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDark ? "bg-slate-900" : "bg-slate-50"
+          isDark
+            ? "bg-slate-900"
+            : "bg-slate-50"
         }`}
       >
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -94,10 +106,13 @@ function Profile() {
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        isDark ? "bg-slate-900" : "bg-slate-50"
+        isDark
+          ? "bg-slate-900"
+          : "bg-slate-50"
       }`}
     >
       {/* Grid Background */}
+
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
         style={{
@@ -119,22 +134,26 @@ function Profile() {
       <div className="relative max-w-5xl mx-auto px-4 py-8">
 
         {/* =========================
-            Profile Card
+            PROFILE CARD
         ========================= */}
 
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
 
           {/* Header */}
+
           <div className="flex items-center gap-3 mb-8">
 
             <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+
               <User
                 size={19}
                 className="text-indigo-600 dark:text-indigo-400"
               />
+
             </div>
 
             <div>
+
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                 Personal Information
               </h2>
@@ -142,13 +161,13 @@ function Profile() {
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                 View your account information
               </p>
+
             </div>
 
           </div>
 
-
           {/* =========================
-              Profile Image
+              PROFILE IMAGE
           ========================= */}
 
           <div className="flex flex-col items-center mb-8">
@@ -173,8 +192,11 @@ function Profile() {
               </div>
 
               {/* Camera icon */}
+
               <div className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg">
+
                 <Camera size={17} />
+
               </div>
 
             </div>
@@ -189,15 +211,16 @@ function Profile() {
 
           </div>
 
-
           {/* =========================
-              Information
+              INFORMATION
           ========================= */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
             {/* Full Name */}
+
             <div>
+
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Full Name
               </label>
@@ -216,11 +239,13 @@ function Profile() {
                 />
 
               </div>
+
             </div>
 
-
             {/* Email */}
+
             <div>
+
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Email Address
               </label>
@@ -239,11 +264,13 @@ function Profile() {
                 />
 
               </div>
+
             </div>
 
-
             {/* Phone */}
+
             <div>
+
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Phone Number
               </label>
@@ -257,18 +284,21 @@ function Profile() {
 
                 <input
                   value={
-                    userData.phone || "Not provided"
+                    userData.phone ||
+                    "Not provided"
                   }
                   readOnly
                   className="w-full bg-transparent outline-none text-sm text-slate-700 dark:text-slate-200"
                 />
 
               </div>
+
             </div>
 
-
             {/* Account Role */}
+
             <div>
+
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Account Type
               </label>
@@ -281,18 +311,21 @@ function Profile() {
                 />
 
                 <input
-                  value={userData.role || "USER"}
+                  value={
+                    userData.role || "USER"
+                  }
                   readOnly
                   className="w-full bg-transparent outline-none text-sm text-slate-700 dark:text-slate-200"
                 />
 
               </div>
+
             </div>
 
           </div>
 
-
           {/* Account Info */}
+
           <div className="mt-6 px-4 py-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30">
 
             <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
@@ -306,6 +339,7 @@ function Profile() {
         <Footer />
 
       </div>
+
     </div>
   );
 }

@@ -19,6 +19,9 @@ import {
 
 import { useAuth } from "../context/AuthContext";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 const Account = () => {
   const { isDark } = useTheme();
   const { user: authUser } = useAuth();
@@ -54,9 +57,7 @@ const Account = () => {
   });
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-
   const [showNewPassword, setShowNewPassword] = useState(false);
-
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [updatingPassword, setUpdatingPassword] = useState(false);
@@ -86,7 +87,7 @@ const Account = () => {
           return;
         }
 
-        const res = await fetch("http://localhost:8081/api/user/profile", {
+        const res = await fetch(`${API_URL}/api/user/profile`, {
           headers: {
             Authorization: `Bearer ${authUser.token}`,
           },
@@ -162,7 +163,7 @@ const Account = () => {
     try {
       setSavingProfile(true);
 
-      const res = await fetch("http://localhost:8081/api/user/update", {
+      const res = await fetch(`${API_URL}/api/user/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -245,7 +246,7 @@ const Account = () => {
       setUpdatingPassword(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/user/change-password",
+        `${API_URL}/api/user/change-password`,
         {
           method: "PUT",
           headers: {
@@ -256,7 +257,7 @@ const Account = () => {
             password: passwordForm.password,
             newPassword: passwordForm.newPassword,
           }),
-        },
+        }
       );
 
       let data = {};
@@ -273,7 +274,9 @@ const Account = () => {
       }
 
       if (!res.ok) {
-        throw new Error(data.message || "Password update failed.");
+        throw new Error(
+          data.message || "Password update failed."
+        );
       }
 
       setSuccess("Password updated successfully.");
@@ -305,7 +308,7 @@ const Account = () => {
     }
 
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete your account? This action cannot be undone.",
+      "Are you sure you want to delete your account? This action cannot be undone."
     );
 
     if (!confirmDelete) {
@@ -315,7 +318,7 @@ const Account = () => {
     try {
       setDeleting(true);
 
-      const res = await fetch("http://localhost:8081/api/user/delete", {
+      const res = await fetch(`${API_URL}/api/user/delete`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${authUser.token}`,
@@ -345,6 +348,10 @@ const Account = () => {
     }
   };
 
+  // =========================
+  // Image Change
+  // =========================
+
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
 
@@ -353,13 +360,11 @@ const Account = () => {
     setError("");
     setSuccess("");
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       setError("Please select a valid image file.");
       return;
     }
 
-    // Maximum 5 MB
     if (file.size > 5 * 1024 * 1024) {
       setError("Image size must be less than 5 MB.");
       return;
@@ -370,6 +375,10 @@ const Account = () => {
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
   };
+
+  // =========================
+  // Upload Image
+  // =========================
 
   const handleUploadImage = async () => {
     if (!profileImage) {
@@ -391,13 +400,16 @@ const Account = () => {
 
       formData.append("image", profileImage);
 
-      const res = await fetch("http://localhost:8081/api/user/profile-image", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        `${API_URL}/api/user/profile-image`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+          },
+          body: formData,
+        }
+      );
 
       let data = {};
 
@@ -413,7 +425,9 @@ const Account = () => {
       }
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to upload profile image.");
+        throw new Error(
+          data.message || "Failed to upload profile image."
+        );
       }
 
       setImagePreview(data.profileImage);
@@ -428,7 +442,9 @@ const Account = () => {
       setSuccess("Profile image updated successfully.");
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to upload profile image.");
+      setError(
+        err.message || "Failed to upload profile image."
+      );
     } finally {
       setUploadingImage(false);
     }
@@ -470,9 +486,8 @@ const Account = () => {
       <Header />
 
       <div className="relative max-w-5xl mx-auto px-4 py-8 space-y-6">
-        {/* =========================
-            Global Messages
-        ========================= */}
+
+        {/* Global Messages */}
 
         {error && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 text-sm font-medium">
@@ -488,11 +503,10 @@ const Account = () => {
           </div>
         )}
 
-        {/* =========================
-            Profile
-        ========================= */}
+        {/* Profile */}
 
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
+
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
               <User
@@ -513,10 +527,14 @@ const Account = () => {
           </div>
 
           <div className="space-y-5">
+
             {/* Profile Image */}
+
             <div className="flex flex-col items-center mb-7">
               <div className="relative">
+
                 <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white dark:border-slate-700 shadow-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+
                   {imagePreview ? (
                     <img
                       src={imagePreview}
@@ -524,18 +542,24 @@ const Account = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User size={42} className="text-indigo-500" />
+                    <User
+                      size={42}
+                      className="text-indigo-500"
+                    />
                   )}
+
                 </div>
 
-                {/* Camera button */}
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() =>
+                    fileInputRef.current?.click()
+                  }
                   className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg transition"
                 >
                   <Camera size={17} />
                 </button>
+
               </div>
 
               <input
@@ -557,18 +581,23 @@ const Account = () => {
                   disabled={uploadingImage}
                   className="mt-3 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition disabled:opacity-60"
                 >
-                  {uploadingImage ? "Uploading..." : "Upload Photo"}
+                  {uploadingImage
+                    ? "Uploading..."
+                    : "Upload Photo"}
                 </button>
               )}
+
             </div>
 
             {/* Name */}
+
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Full Name
               </label>
 
               <div className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/40 px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500/30">
+
                 <User size={17} className="text-slate-400" />
 
                 <input
@@ -579,16 +608,19 @@ const Account = () => {
                   onChange={handleProfileChange}
                   className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                 />
+
               </div>
             </div>
 
             {/* Email */}
+
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Email Address
               </label>
 
               <div className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/30 px-4 py-3">
+
                 <Mail size={17} className="text-slate-400" />
 
                 <input
@@ -597,6 +629,7 @@ const Account = () => {
                   readOnly
                   className="w-full bg-transparent outline-none text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed"
                 />
+
               </div>
 
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
@@ -605,12 +638,14 @@ const Account = () => {
             </div>
 
             {/* Phone */}
+
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Phone Number
               </label>
 
               <div className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/40 px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500/30">
+
                 <Phone size={17} className="text-slate-400" />
 
                 <input
@@ -621,29 +656,40 @@ const Account = () => {
                   onChange={handleProfileChange}
                   className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                 />
+
               </div>
             </div>
+
           </div>
 
           <button
             onClick={handleSaveProfile}
-            disabled={!isValidProfile || !touched || savingProfile}
+            disabled={
+              !isValidProfile ||
+              !touched ||
+              savingProfile
+            }
             className={`mt-6 px-5 py-2.5 rounded-xl text-sm font-bold transition ${
-              isValidProfile && touched && !savingProfile
+              isValidProfile &&
+              touched &&
+              !savingProfile
                 ? "bg-indigo-600 text-white hover:bg-indigo-500 shadow-md shadow-indigo-500/20"
                 : "bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed"
             }`}
           >
-            {savingProfile ? "Saving..." : "Save Changes"}
+            {savingProfile
+              ? "Saving..."
+              : "Save Changes"}
           </button>
+
         </div>
 
-        {/* =========================
-            Security
-        ========================= */}
+        {/* Security */}
 
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
+
           <div className="flex items-center gap-3 mb-6">
+
             <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
               <ShieldCheck
                 size={19}
@@ -660,20 +706,28 @@ const Account = () => {
                 Keep your account secure
               </p>
             </div>
+
           </div>
 
           <div className="space-y-4">
+
             {/* Current Password */}
+
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Current Password
               </label>
 
               <div className="relative flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/40 px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500/30">
+
                 <Lock size={17} className="text-slate-400" />
 
                 <input
-                  type={showCurrentPassword ? "text" : "password"}
+                  type={
+                    showCurrentPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="password"
                   placeholder="Current Password"
                   value={passwordForm.password}
@@ -683,7 +737,11 @@ const Account = () => {
 
                 <button
                   type="button"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  onClick={() =>
+                    setShowCurrentPassword(
+                      !showCurrentPassword
+                    )
+                  }
                   className="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                 >
                   {showCurrentPassword ? (
@@ -692,20 +750,27 @@ const Account = () => {
                     <Eye size={17} />
                   )}
                 </button>
+
               </div>
             </div>
 
             {/* New Password */}
+
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 New Password
               </label>
 
               <div className="relative flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/40 px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500/30">
+
                 <Lock size={17} className="text-slate-400" />
 
                 <input
-                  type={showNewPassword ? "text" : "password"}
+                  type={
+                    showNewPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="newPassword"
                   placeholder="New Password"
                   value={passwordForm.newPassword}
@@ -715,25 +780,40 @@ const Account = () => {
 
                 <button
                   type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  onClick={() =>
+                    setShowNewPassword(
+                      !showNewPassword
+                    )
+                  }
                   className="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                 >
-                  {showNewPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                  {showNewPassword ? (
+                    <EyeOff size={17} />
+                  ) : (
+                    <Eye size={17} />
+                  )}
                 </button>
+
               </div>
             </div>
 
             {/* Confirm Password */}
+
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                 Confirm New Password
               </label>
 
               <div className="relative flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/40 px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500/30">
+
                 <Lock size={17} className="text-slate-400" />
 
                 <input
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="confirmPassword"
                   placeholder="Confirm New Password"
                   value={passwordForm.confirmPassword}
@@ -743,7 +823,11 @@ const Account = () => {
 
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onClick={() =>
+                    setShowConfirmPassword(
+                      !showConfirmPassword
+                    )
+                  }
                   className="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                 >
                   {showConfirmPassword ? (
@@ -752,8 +836,10 @@ const Account = () => {
                     <Eye size={17} />
                   )}
                 </button>
+
               </div>
             </div>
+
           </div>
 
           <button
@@ -761,27 +847,36 @@ const Account = () => {
             disabled={updatingPassword}
             className="mt-6 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition shadow-md shadow-indigo-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {updatingPassword ? "Updating..." : "Update Password"}
+            {updatingPassword
+              ? "Updating..."
+              : "Update Password"}
           </button>
+
         </div>
 
-        {/* =========================
-            Danger Zone
-        ========================= */}
+        {/* Danger Zone */}
 
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-red-200 dark:border-red-500/30 p-6 shadow-sm">
+
           <div className="flex items-center gap-3 mb-4">
+
             <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-              <Trash2 size={19} className="text-red-500" />
+              <Trash2
+                size={19}
+                className="text-red-500"
+              />
             </div>
 
             <div>
-              <h2 className="text-sm font-bold text-red-500">Danger Zone</h2>
+              <h2 className="text-sm font-bold text-red-500">
+                Danger Zone
+              </h2>
 
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                 Permanently delete your account and data
               </p>
             </div>
+
           </div>
 
           <button
@@ -789,11 +884,15 @@ const Account = () => {
             disabled={deleting}
             className="px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {deleting ? "Deleting..." : "Delete Account"}
+            {deleting
+              ? "Deleting..."
+              : "Delete Account"}
           </button>
+
         </div>
 
         <Footer />
+
       </div>
     </div>
   );

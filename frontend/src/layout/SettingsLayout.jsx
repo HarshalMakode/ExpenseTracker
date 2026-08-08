@@ -18,6 +18,9 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
   const { isDark, toggle, resetToSystem, override, systemTheme } = useTheme();
   const [showThemeSubmenu, setShowThemeSubmenu] = useState(false);
@@ -32,7 +35,7 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
       if (!user?.token) return;
 
       try {
-        const res = await fetch("http://localhost:8081/api/user/profile", {
+        const res = await fetch(`${API_URL}/api/user/profile`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },

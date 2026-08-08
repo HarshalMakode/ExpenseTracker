@@ -1,10 +1,10 @@
 package com.example.ExpenseTracker.controller;
 
-import com.example.ExpenseTracker.dto.UserResponse;
 import com.example.ExpenseTracker.entity.User;
 import com.example.ExpenseTracker.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +30,13 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Backend base URL
+    // Local: http://localhost:8081
+    // Render: https://expense-tracker-backend-p1gj.onrender.com
+    @Value("${app.base-url:http://localhost:8081}")
+    private String baseUrl;
+
+
     // ================= PROFILE =================
 
     @GetMapping("/profile")
@@ -41,14 +48,23 @@ public class UserController {
         return ResponseEntity.ok(
                 Map.of(
                         "userId", user.getUserId(),
-                        "name", user.getName(),
-                        "email", user.getEmail(),
-                        "phone", user.getPhone() == null
+
+                        "name",
+                        user.getName(),
+
+                        "email",
+                        user.getEmail(),
+
+                        "phone",
+                        user.getPhone() == null
                                 ? ""
                                 : user.getPhone(),
-                        "role", user.getRole() == null
+
+                        "role",
+                        user.getRole() == null
                                 ? ""
                                 : user.getRole(),
+
                         "profileImage",
                         user.getProfileImageUrl() == null
                                 ? ""
@@ -72,10 +88,12 @@ public class UserController {
                 updatedUser.getName().isBlank()) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of(
-                            "message",
-                            "Name is required"
-                    ));
+                    .body(
+                            Map.of(
+                                    "message",
+                                    "Name is required"
+                            )
+                    );
         }
 
         user.setName(updatedUser.getName());
@@ -90,10 +108,13 @@ public class UserController {
                 Map.of(
                         "message",
                         "Profile updated successfully",
+
                         "name",
                         user.getName(),
+
                         "email",
                         user.getEmail(),
+
                         "phone",
                         user.getPhone() == null
                                 ? ""
@@ -119,40 +140,51 @@ public class UserController {
             if (image == null || image.isEmpty()) {
 
                 return ResponseEntity.badRequest()
-                        .body(Map.of(
-                                "message",
-                                "Please select an image"
-                        ));
+                        .body(
+                                Map.of(
+                                        "message",
+                                        "Please select an image"
+                                )
+                        );
             }
+
 
             // Maximum 5 MB
             if (image.getSize() > 5 * 1024 * 1024) {
 
                 return ResponseEntity.badRequest()
-                        .body(Map.of(
-                                "message",
-                                "Image must be smaller than 5 MB"
-                        ));
+                        .body(
+                                Map.of(
+                                        "message",
+                                        "Image must be smaller than 5 MB"
+                                )
+                        );
             }
 
+
             // Check content type
-            String contentType = image.getContentType();
+            String contentType =
+                    image.getContentType();
 
             if (contentType == null ||
                     !contentType.startsWith("image/")) {
 
                 return ResponseEntity.badRequest()
-                        .body(Map.of(
-                                "message",
-                                "Only image files are allowed"
-                        ));
+                        .body(
+                                Map.of(
+                                        "message",
+                                        "Only image files are allowed"
+                                )
+                        );
             }
+
 
             // Create upload directory
             Path uploadDirectory =
                     Paths.get("uploads/profile-images");
 
             Files.createDirectories(uploadDirectory);
+
 
             // Get extension
             String originalName =
@@ -163,17 +195,21 @@ public class UserController {
             if (originalName != null &&
                     originalName.contains(".")) {
 
-                extension = originalName.substring(
-                        originalName.lastIndexOf(".")
-                );
+                extension =
+                        originalName.substring(
+                                originalName.lastIndexOf(".")
+                        );
             }
+
 
             // Generate unique filename
             String fileName =
                     UUID.randomUUID() + extension;
 
+
             Path filePath =
                     uploadDirectory.resolve(fileName);
+
 
             // Save file
             Files.copy(
@@ -182,20 +218,28 @@ public class UserController {
                     StandardCopyOption.REPLACE_EXISTING
             );
 
-            // Generate URL
+
+            // =========================
+            // GENERATE IMAGE URL
+            // =========================
+
             String imageUrl =
-                    "http://localhost:8081/uploads/profile-images/"
-                            + fileName;
+                    baseUrl +
+                            "/uploads/profile-images/" +
+                            fileName;
+
 
             // Save URL in database
             user.setProfileImageUrl(imageUrl);
 
             userRepository.save(user);
 
+
             return ResponseEntity.ok(
                     Map.of(
                             "message",
                             "Profile image uploaded successfully",
+
                             "profileImage",
                             imageUrl
                     )
@@ -207,10 +251,12 @@ public class UserController {
 
             return ResponseEntity
                     .internalServerError()
-                    .body(Map.of(
-                            "message",
-                            "Failed to upload image"
-                    ));
+                    .body(
+                            Map.of(
+                                    "message",
+                                    "Failed to upload image"
+                            )
+                    );
         }
     }
 
@@ -225,8 +271,12 @@ public class UserController {
 
         User user = (User) auth.getPrincipal();
 
-        String currentPassword = req.get("password");
-        String newPassword = req.get("newPassword");
+        String currentPassword =
+                req.get("password");
+
+        String newPassword =
+                req.get("newPassword");
+
 
         // Validation
         if (currentPassword == null ||
@@ -235,8 +285,11 @@ public class UserController {
                 newPassword.isBlank()) {
 
             return ResponseEntity.badRequest()
-                    .body("All fields are required");
+                    .body(
+                            "All fields are required"
+                    );
         }
+
 
         if (newPassword.length() < 6) {
 
@@ -245,6 +298,7 @@ public class UserController {
                             "Password must be at least 6 characters"
                     );
         }
+
 
         if (!passwordEncoder.matches(
                 currentPassword,
@@ -256,11 +310,15 @@ public class UserController {
                     );
         }
 
+
         user.setPassword(
-                passwordEncoder.encode(newPassword)
+                passwordEncoder.encode(
+                        newPassword
+                )
         );
 
         userRepository.save(user);
+
 
         return ResponseEntity.ok(
                 "Password updated successfully"
@@ -275,10 +333,13 @@ public class UserController {
     public ResponseEntity<Void> deleteAccount(
             Authentication auth) {
 
-        User user = (User) auth.getPrincipal();
+        User user =
+                (User) auth.getPrincipal();
 
         userRepository.delete(user);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

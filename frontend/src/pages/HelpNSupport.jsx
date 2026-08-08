@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 const HelpNSupport = () => {
   const { isDark } = useTheme();
   const { user: authUser } = useAuth();
@@ -60,7 +63,7 @@ const HelpNSupport = () => {
       setSuccess("");
 
       const res = await fetch(
-        "http://localhost:8081/api/support/contact",
+        `${API_URL}/api/support/contact`,
         {
           method: "POST",
           headers: {
@@ -84,7 +87,8 @@ const HelpNSupport = () => {
 
       if (!res.ok) {
         throw new Error(
-          data.message || "Failed to send support request."
+          data.message ||
+            "Failed to send support request."
         );
       }
 
@@ -98,8 +102,10 @@ const HelpNSupport = () => {
       });
     } catch (err) {
       console.error(err);
+
       setError(
-        err.message || "Failed to send support request."
+        err.message ||
+          "Failed to send support request."
       );
     } finally {
       setLoading(false);
@@ -159,10 +165,13 @@ const HelpNSupport = () => {
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        isDark ? "bg-slate-900" : "bg-slate-50"
+        isDark
+          ? "bg-slate-900"
+          : "bg-slate-50"
       }`}
     >
       {/* Grid Background */}
+
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
         style={{
@@ -188,6 +197,7 @@ const HelpNSupport = () => {
         <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
 
           <div className="mb-6">
+
             <h2 className="text-sm font-bold text-slate-900 dark:text-white">
               Contact Support
             </h2>
@@ -195,9 +205,11 @@ const HelpNSupport = () => {
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
               Tell us what went wrong and we'll take a look.
             </p>
+
           </div>
 
           {/* Success */}
+
           {success && (
             <div className="mb-5 flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
               <CheckCircle size={15} />
@@ -206,6 +218,7 @@ const HelpNSupport = () => {
           )}
 
           {/* Error */}
+
           {error && (
             <div className="mb-5 flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 text-xs font-semibold">
               <AlertCircle size={15} />
@@ -218,12 +231,15 @@ const HelpNSupport = () => {
             <div className="space-y-5">
 
               {/* Subject */}
+
               <div>
+
                 <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                   Subject
                 </label>
 
                 <div className="flex items-center gap-3 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 bg-slate-50 dark:bg-slate-700/40 focus-within:border-indigo-500 transition">
+
                   <Mail
                     size={16}
                     className="text-slate-400"
@@ -237,16 +253,21 @@ const HelpNSupport = () => {
                     onChange={handleChange}
                     className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                   />
+
                 </div>
+
               </div>
 
               {/* Message */}
+
               <div>
+
                 <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
                   Message
                 </label>
 
                 <div className="flex items-start gap-3 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 bg-slate-50 dark:bg-slate-700/40 focus-within:border-indigo-500 transition">
+
                   <MessageCircleQuestion
                     size={16}
                     className="text-slate-400 mt-1"
@@ -260,27 +281,32 @@ const HelpNSupport = () => {
                     rows={5}
                     className="w-full bg-transparent outline-none resize-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                   />
+
                 </div>
+
               </div>
 
             </div>
 
             {/* Send */}
+
             <button
               type="submit"
               disabled={loading}
               className="mt-5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 text-white rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-md shadow-indigo-500/20"
             >
+
               <Send size={14} />
 
               {loading
                 ? "Sending..."
                 : "Send Message"}
+
             </button>
 
           </form>
-        </div>
 
+        </div>
 
         {/* ================= FAQ ================= */}
 
@@ -293,8 +319,8 @@ const HelpNSupport = () => {
           <div className="space-y-2">
 
             {faqs.map((faq, index) => {
-
-              const isOpen = openFaq === index;
+              const isOpen =
+                openFaq === index;
 
               return (
                 <div
@@ -306,7 +332,9 @@ const HelpNSupport = () => {
                     type="button"
                     onClick={() =>
                       setOpenFaq(
-                        isOpen ? null : index
+                        isOpen
+                          ? null
+                          : index
                       )
                     }
                     className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/30 transition"
@@ -319,7 +347,9 @@ const HelpNSupport = () => {
                     <ChevronDown
                       size={16}
                       className={`text-slate-400 transition-transform ${
-                        isOpen ? "rotate-180" : ""
+                        isOpen
+                          ? "rotate-180"
+                          : ""
                       }`}
                     />
 
@@ -327,9 +357,11 @@ const HelpNSupport = () => {
 
                   {isOpen && (
                     <div className="px-4 pb-4">
+
                       <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                         {faq.answer}
                       </p>
+
                     </div>
                   )}
 
@@ -338,8 +370,8 @@ const HelpNSupport = () => {
             })}
 
           </div>
-        </div>
 
+        </div>
 
         {/* ================= QUICK HELP ================= */}
 
@@ -359,7 +391,9 @@ const HelpNSupport = () => {
               <button
                 key={topic}
                 type="button"
-                onClick={() => handleQuickHelp(topic)}
+                onClick={() =>
+                  handleQuickHelp(topic)
+                }
                 className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 transition"
               >
                 {topic}
@@ -367,11 +401,13 @@ const HelpNSupport = () => {
             ))}
 
           </div>
+
         </div>
 
         <Footer />
 
       </div>
+
     </div>
   );
 };
