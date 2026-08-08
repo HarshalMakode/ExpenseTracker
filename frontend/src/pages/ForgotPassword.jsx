@@ -16,16 +16,19 @@ export default function ForgotPassword() {
     if (!email.trim()) return;
 
     try {
-      // ✅ Step 1: Check if user exists
-      const res = await fetch("http://localhost:8081/auth/check-user", {
+      // Generate reset token and reset link from backend
+      const res = await fetch("http://localhost:8081/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email: email,
+        }),
       });
 
       let data;
+
       try {
         data = await res.json();
       } catch {
@@ -36,10 +39,13 @@ export default function ForgotPassword() {
         throw new Error(data.message || "User does not exist");
       }
 
-      // ✅ Step 2: Send email only if user exists
+      // Backend generated this link
+      const resetLink = data.resetLink;
+
+      // Send reset email using EmailJS
       const templateParams = {
         email: email,
-        reset_link: `http://localhost:5173/reset-password`,
+        link: resetLink,
       };
 
       await emailjs.send(
@@ -52,7 +58,7 @@ export default function ForgotPassword() {
       setSent(true);
     } catch (err) {
       console.error(err);
-      alert(err.message); 
+      alert(err.message);
     }
   };
 
