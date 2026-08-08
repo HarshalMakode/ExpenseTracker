@@ -13,6 +13,7 @@ frontend/dist/
 
 # Java / Maven
 backend/target/
+backend/uploads/
 
 # Logs
 *.log

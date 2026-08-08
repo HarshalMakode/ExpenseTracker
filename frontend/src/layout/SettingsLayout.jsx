@@ -25,6 +25,32 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
+  const [profileImage, setProfileImage] = useState("");
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (!user?.token) return;
+
+      try {
+        const res = await fetch("http://localhost:8081/api/user/profile", {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        setProfileImage(data.profileImage || "");
+      } catch (err) {
+        console.error("Failed to load profile image", err);
+      }
+    };
+
+    fetchProfileImage();
+  }, [user?.token]);
+
   useEffect(() => {
     const handler = (e) => {
       if (
@@ -83,15 +109,6 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
               sub: currentThemeLabel,
               hasSubmenu: true,
               action: () => setShowThemeSubmenu((v) => !v),
-            },
-            {
-              icon: Shield,
-              label: "Security",
-              sub: "Password & 2FA",
-              action: () => {
-                navigate("/security");
-                onClose();
-              },
             },
             {
               icon: Bell,
@@ -176,10 +193,18 @@ function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
       {isLoggedIn && (
         <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-700/30">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/30">
-              <span className="text-white text-xs font-black">
-                {user?.avatar}
-              </span>
+            <div className="w-9 h-9 rounded-xl overflow-hidden bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/30">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-white text-xs font-black">
+                  {user?.avatar || user?.name?.charAt(0)?.toUpperCase() || "U"}
+                </span>
+              )}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-bold text-slate-900 dark:text-white truncate">

@@ -22,17 +22,39 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
+
         http
-                .cors(cors -> cors.configure(http)) // Ensure CORS is actually configured
+                .cors(cors -> cors.configure(http))
                 .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Login/Register are public
-                        .requestMatchers("/api/**").authenticated()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated() // Notifications, Expenses, etc. require JWT
+
+                        // Public authentication endpoints
+                        .requestMatchers("/auth/**")
+                        .permitAll()
+
+                        // Public profile images
+                        .requestMatchers("/uploads/**")
+                        .permitAll()
+
+                        // Admin
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+
+                        // All other APIs require authentication
+                        .requestMatchers("/api/**")
+                        .authenticated()
+
+                        .anyRequest()
+                        .authenticated()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }

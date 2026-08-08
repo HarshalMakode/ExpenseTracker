@@ -29,7 +29,15 @@ public class User {
 
     private String role;
 
+    // Profile
+    private String phone;
+
+    private String profileImageUrl;
+
+    // Password reset
+    @JsonIgnore
     private String resetToken;
 
+    @JsonIgnore
     private LocalDateTime resetTokenExpiry;
 }

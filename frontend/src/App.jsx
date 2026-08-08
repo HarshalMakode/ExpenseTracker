@@ -8,7 +8,6 @@ import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile";
 import Account from "./pages/Account";
-import Security from "./pages/Security";
 import HelpNSupport from "./pages/HelpNSupport";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Notification from "./pages/Notification";
@@ -78,15 +77,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Account />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/security"
-        element={
-          <ProtectedRoute>
-            <Security />
           </ProtectedRoute>
         }
       />
